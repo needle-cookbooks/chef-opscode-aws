@@ -249,14 +249,12 @@ end
 # Attach all existing ami instances if they exist on this node, if not, we want an error to occur  Detects disk from node information
 def attach_volume(disk_dev, volume_id)
   disk_dev_path = "/dev/#{disk_dev}"
-  
-  aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
-  
+
   Chef::Log.info("Attaching existing ebs volume id #{volume_id} for device #{disk_dev_path}")
   
   aws_ebs_volume "#{disk_dev_path}" do
-    aws_access_key          aws['aws_access_key_id']
-    aws_secret_access_key   aws['aws_secret_access_key']
+    aws_access_key          new_resource.aws_access_key
+    aws_secret_access_key   new_resource.aws_secret_access_key
     device                  disk_dev_path
     name                    disk_dev
     volume_id               volume_id
@@ -291,13 +289,11 @@ def create_raid_disks(mount_point, num_disks, disk_size,
   (1..num_disks).each do |i|
     
     disk_dev_path = "#{disk_dev}#{i}"
-    
-    aws = data_bag_item(node['aws']['databag_name'], node['aws']['databag_entry'])
-   
+
     Chef::Log.info "Snapshot array is #{snapshots[i-1]}"
     aws_ebs_volume "#{disk_dev_path}" do
-      aws_access_key          aws['aws_access_key_id']
-      aws_secret_access_key   aws['aws_secret_access_key']
+      aws_access_key          new_resource.aws_access_key
+      aws_secret_access_key   new_resource.aws_secret_access_key
       size                    disk_size
       volume_type             disk_type
       piops                   disk_piops
