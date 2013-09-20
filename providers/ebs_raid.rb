@@ -300,8 +300,8 @@ def attach_volume(disk_dev, volume_id)
   Chef::Log.info("Attaching existing ebs volume id #{volume_id} for device #{disk_dev_path}")
 
   aws_ebs_volume disk_dev_path do
-    aws_access_key          aws['aws_access_key_id']
-    aws_secret_access_key   aws['aws_secret_access_key']
+    aws_access_key          new_resource.aws_access_key
+    aws_secret_access_key   new_resource.aws_secret_access_key
     device                  disk_dev_path
     name                    disk_dev
     volume_id               volume_id
