@@ -128,9 +128,23 @@ def udev(cmd, log)
 end
 
 def update_initramfs()
-  execute "updating initramfs" do
-    Chef::Log.debug("updating initramfs to ensure RAID config persists reboots")
-    command "update-initramfs -u"
+  update_command = value_for_platform(
+    [ "debian", "ubuntu" ] => {
+      "default" => "update-initramfs -u"
+    },
+    [ "centos", "redhat", "amazon", "scientific" ] => {
+      "default" => "dracut --mdadmconf --force /boot/initramfs-#{node['os_version']}.img #{node['os_version']}"
+    },
+    "default" => nil
+  )
+
+  unless update_command.nil?
+    execute "updating initramfs" do
+      Chef::Log.debug("updating initramfs to ensure RAID config persists reboots")
+      command update_command
+    end
+  else
+    Chef::Log.warn("Unsupported platform. initramfs will not be updated.")
   end
 end
 
